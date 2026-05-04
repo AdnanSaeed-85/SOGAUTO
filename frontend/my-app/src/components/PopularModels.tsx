@@ -1,5 +1,6 @@
 'use client'
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 
 const faqs = [
   {
@@ -38,6 +39,7 @@ const faqs = [
 
 export default function PopularModels() {
   const [openIndex, setOpenIndex] = useState<number | null>(null)
+  const router = useRouter()
 
   const toggle = (i: number) => {
     setOpenIndex(openIndex === i ? null : i)
@@ -60,6 +62,12 @@ export default function PopularModels() {
     { name: "Tesla", img: "/tesla.png" }
   ]
 
+  // Extract first word as brand for filtering
+  const handleClick = (name: string) => {
+    const brand = name.split(" ")[0].replace("-", " ").split(" ")[0];
+    router.push(`/buy?brand=${encodeURIComponent(brand)}`);
+  }
+
   return (
     <div className="px-4 md:px-10 py-6">
 
@@ -68,7 +76,11 @@ export default function PopularModels() {
       </h2>
       <div className="grid grid-cols-3 md:grid-cols-6 gap-4">
         {models.map((model) => (
-          <button key={model.name} className="rounded-lg p-3 hover:border-orange-500 text-black text-sm text-center shadow-md hover:shadow-amber-400">
+          <button
+            key={model.name}
+            onClick={() => handleClick(model.name)}
+            className="rounded-lg p-3 hover:border-orange-500 text-black text-sm text-center shadow-md hover:shadow-amber-400"
+          >
             <img src={model.img} alt={model.name} className="h-[80px] md:h-[120px] w-full object-cover rounded-md" />
             <div className="my-3">{model.name}</div>
           </button>
@@ -80,7 +92,11 @@ export default function PopularModels() {
       </h2>
       <div className="grid grid-cols-3 md:grid-cols-5 gap-4">
         {recommendation.map((recomm) => (
-          <button key={recomm.name} className="rounded-lg p-3 hover:border-orange-500 text-black text-sm text-center shadow-md">
+          <button
+            key={recomm.name}
+            onClick={() => handleClick(recomm.name)}
+            className="rounded-lg p-3 hover:border-orange-500 text-black text-sm text-center shadow-md"
+          >
             <img src={recomm.img} alt={recomm.name} className="h-[80px] md:h-[120px] w-full object-cover rounded-md shadow-md hover:shadow-amber-400" />
             <div className="my-3">{recomm.name}</div>
           </button>

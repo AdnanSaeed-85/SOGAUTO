@@ -4,6 +4,7 @@ import { Autoplay } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/autoplay";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 const cards = [
   { name: "Toyota", price: "Price on demand", fuel: "Diesel", year: 2022, km: "45,000 km", img: "/img1.png" },
@@ -15,6 +16,13 @@ const cards = [
 
 export default function HeroSection() {
   const [price, setPrice] = useState(0);
+  const router = useRouter();
+
+  const handleCardClick = (carName: string) => {
+    // Extract brand (first word) from the car name
+    const brand = carName.split(" ")[0];
+    router.push(`/buy?brand=${encodeURIComponent(brand)}`);
+  };
 
   return (
     <section className="flex flex-col md:flex-row gap-6 px-4 md:px-10 py-8">
@@ -55,7 +63,10 @@ export default function HeroSection() {
         >
           {cards.map((car, i) => (
             <SwiperSlide key={i}>
-              <div className="border border-gray-200 rounded-lg p-4 shadow-sm">
+              <div
+                onClick={() => handleCardClick(car.name)}
+                className="border border-gray-200 rounded-lg p-4 shadow-sm cursor-pointer hover:shadow-md hover:border-orange-400 transition-all duration-200"
+              >
                 <div className="bg-orange-400 h-[180px] rounded-md mb-3 flex items-center justify-center text-gray-400">
                   <img src={car.img} alt={car.name} className="h-[180px] w-full object-cover rounded-md mb-3" />
                 </div>

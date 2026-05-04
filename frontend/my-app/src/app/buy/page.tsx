@@ -1,5 +1,6 @@
 'use client'
-import { useState } from "react"
+import { useState, useMemo, Suspense } from "react"
+import { useSearchParams, useRouter } from "next/navigation"
 
 const cars = [
   { name: "BMW M-5", year: 2023, gearbox: "Automatique", km: "63,000 km", fuel: "Essence", reg: "Safra", price: "11,110,000 DA", location: "Guelma", time: "20 hours ago", img: "/img5.png" },
@@ -8,12 +9,31 @@ const cars = [
   { name: "Renault Megane", year: 2006, gearbox: "Manuelle", km: "361,000 km", fuel: "Diesel", reg: "Safra", price: "1,460,000 DA", location: "Guelma", time: "18 hours ago", img: "/img4.png" },
   { name: "Volkswagen T-Roc", year: 2023, gearbox: "Manuelle", km: "63,000 km", fuel: "Essence", reg: "Safra", price: "5,110,000 DA", location: "Guelma", time: "20 hours ago", img: "/img1.png" },
 ];
+ 
+function BuyPageContent() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
 
-export default function BuyPage() {
+  const brandParam = searchParams.get("brand") || "";
+
   const [price, setPrice] = useState(100000);
   const [year, setYear] = useState(1980);
   const [mileage, setMileage] = useState(0);
   const [showFilters, setShowFilters] = useState(false);
+  const [searchInput, setSearchInput] = useState(brandParam);
+
+  // Filter cars based on brand from URL param
+  const filteredCars = useMemo(() => {
+    if (!brandParam) return cars;
+    return cars.filter((car) =>
+      car.name.toLowerCase().includes(brandParam.toLowerCase())
+    );
+  }, [brandParam]);
+
+  const handleClearFilter = () => {
+    setSearchInput("");
+    router.push("/buy");
+  };
 
   return (
     <section className="flex flex-col md:flex-row mx-3 my-3 gap-3">
@@ -30,7 +50,13 @@ export default function BuyPage() {
       <div className={`${showFilters ? "flex" : "hidden"} md:flex w-full md:w-[28%] border border-gray-200 rounded-lg p-5 shadow-sm h-fit flex-col gap-3`}>
         <h1 className="text-black font-semibold text-2xl">Filter</h1>
 
-        <input type="text" placeholder="Search here" className="w-full rounded-lg h-10 px-3 border border-gray-300 text-gray-800 outline-none focus:border-orange-500 placeholder:text-gray-400" />
+        <input
+          type="text"
+          placeholder="Search here"
+          value={searchInput}
+          onChange={(e) => setSearchInput(e.target.value)}
+          className="w-full rounded-lg h-10 px-3 border border-gray-300 text-gray-800 outline-none focus:border-orange-500 placeholder:text-gray-400"
+        />
 
         <div>
           <label className="text-sm text-gray-600 block mb-1">Price: {price.toLocaleString()} DA – ∞</label>
@@ -118,14 +144,27 @@ export default function BuyPage() {
 
         <div className="flex gap-2 mt-2">
           <button className="w-full bg-orange-500 text-white py-2 rounded-md hover:bg-orange-600">✓ Apply</button>
-          <button className="w-full border border-gray-300 text-gray-600 py-2 rounded-md hover:border-orange-500">✕ Reset</button>
+          <button
+            onClick={handleClearFilter}
+            className="w-full border border-gray-300 text-gray-600 py-2 rounded-md hover:border-orange-500"
+          >
+            ✕ Reset
+          </button>
         </div>
       </div>
 
       {/* Right Car Cards */}
       <div className="w-full md:w-[72%] flex flex-col gap-4">
         <div className="flex justify-between items-center">
-          <span className="text-orange-500 font-semibold">{cars.length} ads</span>
+          <div className="flex items-center gap-2">
+            <span className="text-orange-500 font-semibold">{filteredCars.length} ads</span>
+            {brandParam && (
+              <span className="flex items-center gap-1 bg-orange-100 text-orange-600 text-sm px-3 py-1 rounded-full">
+                Brand: {brandParam}
+                <button onClick={handleClearFilter} className="ml-1 hover:text-red-500 font-bold">✕</button>
+              </span>
+            )}
+          </div>
           <select className="border border-gray-300 rounded-md px-3 py-2 text-gray-600 outline-none focus:border-orange-500">
             <option>Sort by</option>
             <option>Price: Low to High</option>
@@ -134,36 +173,53 @@ export default function BuyPage() {
           </select>
         </div>
 
-        {cars.map((car, i) => (
-          <div key={i} className="border border-gray-200 rounded-lg shadow-sm flex flex-col md:flex-row overflow-hidden hover:shadow-md transition">
-            <img src={car.img} alt={car.name} className="w-full md:w-[300px] h-[200px] md:h-[190px] object-cover" />
-            <div className="p-4 flex flex-col justify-between w-full">
-              <div>
-                <h3 className="font-bold text-black text-lg">{car.name}</h3>
-                <div className="flex flex-wrap gap-2 md:gap-4 text-sm text-gray-500 mt-1">
-                  <span>📅 {car.year}</span>
-                  <span>⚙️ {car.gearbox}</span>
-                  <span>🛣️ {car.km}</span>
-                  <span>⛽ {car.fuel}</span>
-                  <span>📄 {car.reg}</span>
-                </div>
-              </div>
-              <div className="flex justify-between items-center mt-3">
+        {filteredCars.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-20 text-gray-400">
+            <p className="text-4xl mb-3">🚗</p>
+            <p className="text-lg font-semibold">No cars found for "{brandParam}"</p>
+            <button onClick={handleClearFilter} className="mt-4 text-orange-500 underline text-sm">Clear filter</button>
+          </div>
+        ) : (
+          filteredCars.map((car, i) => (
+            <div key={i} className="border border-gray-200 rounded-lg shadow-sm flex flex-col md:flex-row overflow-hidden hover:shadow-md transition">
+              <img src={car.img} alt={car.name} className="w-full md:w-[300px] h-[200px] md:h-[190px] object-cover" />
+              <div className="p-4 flex flex-col justify-between w-full">
                 <div>
-                  <p className="text-orange-500 font-bold text-lg">{car.price}</p>
-                  <span className="bg-orange-100 text-orange-500 text-xs px-2 py-0.5 rounded-full">Negotiable</span>
+                  <h3 className="font-bold text-black text-lg">{car.name}</h3>
+                  <div className="flex flex-wrap gap-2 md:gap-4 text-sm text-gray-500 mt-1">
+                    <span>📅 {car.year}</span>
+                    <span>⚙️ {car.gearbox}</span>
+                    <span>🛣️ {car.km}</span>
+                    <span>⛽ {car.fuel}</span>
+                    <span>📄 {car.reg}</span>
+                  </div>
                 </div>
-                <div className="text-right text-sm text-gray-400">
-                  <p>{car.location}</p>
-                  <p>{car.time}</p>
+                <div className="flex justify-between items-center mt-3">
+                  <div>
+                    <p className="text-orange-500 font-bold text-lg">{car.price}</p>
+                    <span className="bg-orange-100 text-orange-500 text-xs px-2 py-0.5 rounded-full">Negotiable</span>
+                  </div>
+                  <div className="text-right text-sm text-gray-400">
+                    <p>{car.location}</p>
+                    <p>{car.time}</p>
+                  </div>
+                  <button className="text-gray-300 hover:text-red-500 text-2xl">♥</button>
                 </div>
-                <button className="text-gray-300 hover:text-red-500 text-2xl">♥</button>
               </div>
             </div>
-          </div>
-        ))}
+          ))
+        )}
       </div>
 
     </section>
+  );
+}
+
+// Wrap in Suspense because useSearchParams requires it in Next.js
+export default function BuyPage() {
+  return (
+    <Suspense fallback={<div className="p-10 text-gray-400">Loading...</div>}>
+      <BuyPageContent />
+    </Suspense>
   );
 }
