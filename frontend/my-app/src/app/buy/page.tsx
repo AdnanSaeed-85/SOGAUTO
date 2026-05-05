@@ -1,14 +1,10 @@
 'use client'
 import { useState, useMemo, Suspense } from "react"
 import { useSearchParams, useRouter } from "next/navigation"
+import data from "@/app/database/dataset.json"
+import Link from "next/link"
 
-const cars = [
-  { name: "BMW M-5", year: 2023, gearbox: "Automatique", km: "63,000 km", fuel: "Essence", reg: "Safra", price: "11,110,000 DA", location: "Guelma", time: "20 hours ago", img: "/img5.png" },
-  { name: "Chery Bmgrand", year: 2025, gearbox: "Manuelle", km: "3,500 km", fuel: "Essence", reg: "Safra", price: "3,650,000 DA", location: "Guelma", time: "19 hours ago", img: "/img2.png" },
-  { name: "Toyota Corolla", year: 2025, gearbox: "Automatique", km: "190 km", fuel: "Essence", reg: "Safra", price: "5,150,000 DA", location: "Guelma", time: "19 hours ago", img: "/img3.png" },
-  { name: "Renault Megane", year: 2006, gearbox: "Manuelle", km: "361,000 km", fuel: "Diesel", reg: "Safra", price: "1,460,000 DA", location: "Guelma", time: "18 hours ago", img: "/img4.png" },
-  { name: "Volkswagen T-Roc", year: 2023, gearbox: "Manuelle", km: "63,000 km", fuel: "Essence", reg: "Safra", price: "5,110,000 DA", location: "Guelma", time: "20 hours ago", img: "/img1.png" },
-];
+const cars = data.cars
  
 function BuyPageContent() {
   const searchParams = useSearchParams();
@@ -180,19 +176,21 @@ function BuyPageContent() {
             <button onClick={handleClearFilter} className="mt-4 text-orange-500 underline text-sm">Clear filter</button>
           </div>
         ) : (
-          filteredCars.map((car, i) => (
-            <div key={i} className="border border-gray-200 rounded-lg shadow-sm flex flex-col md:flex-row overflow-hidden hover:shadow-md transition">
-              <img src={car.img} alt={car.name} className="w-full md:w-[300px] h-[200px] md:h-[190px] object-cover" />
-              <div className="p-4 flex flex-col justify-between w-full">
-                <div>
-                  <h3 className="font-bold text-black text-lg">{car.name}</h3>
-                  <div className="flex flex-wrap gap-2 md:gap-4 text-sm text-gray-500 mt-1">
-                    <span>📅 {car.year}</span>
-                    <span>⚙️ {car.gearbox}</span>
-                    <span>🛣️ {car.km}</span>
-                    <span>⛽ {car.fuel}</span>
-                    <span>📄 {car.reg}</span>
-                  </div>
+          filteredCars.map((car) => {
+            const globalIndex = cars.indexOf(car)
+            return (
+              <div key={globalIndex} className="border border-gray-200 rounded-lg shadow-sm flex flex-col md:flex-row overflow-hidden hover:shadow-md transition">
+                <Link href={`/car/${globalIndex}`}><img src={car.img} alt={car.name} className="w-full md:w-[300px] h-[200px] md:h-[190px] object-cover" /></Link>
+                <div className="p-4 flex flex-col justify-between w-full">
+                  <div>
+                    <h3 className="font-bold text-black text-lg">{car.name}</h3>
+                    <div className="flex flex-wrap gap-2 md:gap-4 text-sm text-gray-500 mt-1">
+                      <span>📅 {car.year}</span>
+                      <span>⚙️ {car.gearbox}</span>
+                      <span>🛣️ {car.km}</span>
+                      <span>⛽ {car.fuel}</span>
+                      <span>📄 {car.reg}</span>
+                    </div>
                 </div>
                 <div className="flex justify-between items-center mt-3">
                   <div>
@@ -207,7 +205,7 @@ function BuyPageContent() {
                 </div>
               </div>
             </div>
-          ))
+          )})
         )}
       </div>
 
