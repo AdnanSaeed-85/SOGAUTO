@@ -90,7 +90,8 @@ export default function PopularModels() {
       <h2 className="text-xl font-bold text-black border-l-4 border-orange-500 pl-3 mb-4 mt-8">
         Our Recommendation
       </h2>
-      <div className="grid grid-cols-3 md:grid-cols-5 gap-4">
+      <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-4">
+
         {recommendation.map((recomm) => (
           <button
             key={recomm.name}

@@ -10,7 +10,7 @@ export default function PopularBrands() {
       <h2 className="text-xl font-bold text-black border-l-4 border-orange-500 pl-3 mb-4">
         The most popular brands
       </h2>
-      <div className="grid grid-cols-3 md:grid-cols-6 gap-2">
+      <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2">
         {brands.map((brand) => (
           <button
             key={brand}
