@@ -57,11 +57,11 @@ function BuyPageContent() {
   };
 
   const renderHandle = (
-    node: React.ReactElement,
-    handleProps: { value: number },
-    formatter: (v: number) => string
-  ) => (
-    <div style={{ ...node.props.style, position: "absolute" }}>
+  node: React.ReactElement<{ style?: React.CSSProperties }>,
+  handleProps: { value: number },
+  formatter: (v: number) => string
+) => (
+  <div style={{ ...node.props.style, position: "absolute" }}>
       {node}
       <div
         className="opacity-0 hover:opacity-100 transition-opacity duration-200"
